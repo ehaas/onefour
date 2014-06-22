@@ -1,5 +1,11 @@
 from abc import ABCMeta, abstractmethod
 
+def get_subclasses(c):
+    subclasses = c.__subclasses__()
+    for d in list(subclasses):
+        subclasses.extend(get_subclasses(d))
+    return subclasses
+
 class AbstractStrategy(object):
     __metaclass__ = ABCMeta
 
@@ -28,13 +34,28 @@ class AbstractStrategy(object):
     def has_qualified(self, dice):
         return self.has_1(dice) and self.has_4(dice)
 
+    def grab_max(self, roll):
+        maxdie = max(roll)
+        if maxdie == 6:
+            return self.grab_sixes(roll)
+        else:
+            return [maxdie]
+
 class QualifyAtAllCosts(AbstractStrategy):
     def handle_roll(self, roll, history):
         if self.has_qualified(history):
-            maxdie = max(roll)
-            if maxdie == 6:
-                return self.grab_sixes(roll)
-            else:
-                return [maxdie]
+            return self.grab_max(roll)
         else:
-            return self.grab_qualifiers(roll) + self.grab_sixes(roll)
+            qualifiers = self.grab_qualifiers(roll)
+            if qualifiers:
+                return qualifiers + self.grab_sixes(roll)
+            else:
+                return self.grab_max(roll)
+
+class MaximizeFirstRound(QualifyAtAllCosts):
+    def handle_roll(self, roll, history):
+        if not history:
+            return self.grab_max(roll)
+        return super(MaximizeFirstRound, self).handle_roll(roll, history)
+
+Strategies = get_subclasses(AbstractStrategy)

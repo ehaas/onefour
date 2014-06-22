@@ -1,15 +1,23 @@
 import random
-from strategy import QualifyAtAllCosts
+from strategy import Strategies
+from collections import Counter
 
+class IllegalPlay(Exception):
+    pass
 
 def rolldice(count):
     return [random.randint(1, 6) for x in xrange(0, count)]
 
 def validate(roll, play):
-    """
-        TODO: make sure this is a valid play given the dice
-    """
-    return len(play) >= 1
+    if not play:
+        return False
+
+    rollcount = Counter(roll)
+    playcount = Counter(play)
+    for value, numplayed in playcount.iteritems():
+        if rollcount[value] < numplayed:
+            return False
+    return True
 
 def playgame(strategy, ndice=6):
     history = []
@@ -19,6 +27,8 @@ def playgame(strategy, ndice=6):
         if validate(roll, play):
             history.extend(play)
             ndice -= len(play)
+        else:
+            raise IllegalPlay("Roll: %s; play: %s; history: %s" % (roll, play, strategy))
     if strategy.has_qualified(history):
         return sum(history) - 5
     else:
@@ -42,5 +52,6 @@ def printOutcomes(strategy, table):
             print "%3s: %05.2f%%" % (i, 100 * outcome / totalGames)
 
 if __name__ == "__main__":
-    results = simulate(QualifyAtAllCosts, ngames=10000)
-    printOutcomes(QualifyAtAllCosts, results)
+    for strategy in Strategies:
+        results = simulate(strategy, ngames=10000)
+        printOutcomes(strategy, results)
