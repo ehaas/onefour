@@ -47,8 +47,10 @@ class QualifyAtAllCosts(AbstractStrategy):
             return self.grab_max(roll)
         else:
             qualifiers = self.grab_qualifiers(roll)
-            if qualifiers:
+            if self.has_qualified(qualifiers + history):
                 return qualifiers + self.grab_sixes(roll)
+            elif qualifiers:
+                return qualifiers
             else:
                 return self.grab_max(roll)
 
