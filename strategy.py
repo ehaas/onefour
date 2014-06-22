@@ -63,7 +63,7 @@ class MaximizeFirstRound(QualifyAtAllCosts):
 class NoOnesInFirstRound(QualifyAtAllCosts):
     def handle_roll(self, roll, history):
         if not history:
-            qualifiers = [q for q in self.grab_qualifiers(roll) if q != 1]
+            qualifiers = [q for q in self.grab_qualifiers(roll) if q != 1][0:1]
             if qualifiers:
                 return qualifiers + self.grab_sixes(roll)
             else:
