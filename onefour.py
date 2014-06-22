@@ -43,15 +43,26 @@ def simulate(Strat, ngames):
     return results
 
 def printOutcomes(strategy, table):
-    totalGames = float(sum(table))
     print "Using strategy %s" % strategy.__name__
+
+    totalGames = float(sum(table))
+    totalQualifications = float(sum(table) - table[0])
+    qualified = totalQualifications > 0
+    if not qualified:
+        totalQualifications = 1
+        print "Do you even qualify, bro?"
+    expectedScore = 0
     for i, outcome in enumerate(table):
         if i == 0:
             print "DNQ: %05.2f%%" % (100 * outcome / totalGames)
         elif i >= 4:
+            expectedScore += i * outcome / totalQualifications
             print "%3s: %05.2f%%" % (i, 100 * outcome / totalGames)
+    if qualified:
+        print "Expected score, given qualification: %.2f" % expectedScore
 
 if __name__ == "__main__":
     for strategy in Strategies:
         results = simulate(strategy, ngames=10000)
         printOutcomes(strategy, results)
+        print '=========================================='
