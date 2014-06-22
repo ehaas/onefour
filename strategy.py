@@ -58,4 +58,14 @@ class MaximizeFirstRound(QualifyAtAllCosts):
             return self.grab_max(roll)
         return super(MaximizeFirstRound, self).handle_roll(roll, history)
 
+class NoOnesInFirstRound(QualifyAtAllCosts):
+    def handle_roll(self, roll, history):
+        if not history:
+            qualifiers = [q for q in self.grab_qualifiers(roll) if q != 1]
+            if qualifiers:
+                return qualifiers + self.grab_sixes(roll)
+            else:
+                return self.grab_max(roll)
+        return super(NoOnesInFirstRound, self).handle_roll(roll, history)
+
 Strategies = get_subclasses(AbstractStrategy)
